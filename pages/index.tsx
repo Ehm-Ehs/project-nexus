@@ -5,6 +5,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import Header from '../component/layout/Header';
 import Hero from '../component/layout/Hero';
 import MovieGrid from '../component/common/MovieGrid';
+import { Onboarding } from '../component/page/onboarding';
 import { Movie } from '../types';
 import { 
   fetchTrendingMovies, 
@@ -32,6 +33,7 @@ export default function Home({ trendingMovies, recommendedMovies }: HomeProps) {
   const [activeTab, setActiveTab] = useState('trending');
   const [favorites, setFavorites] = useState<Movie[]>([]);
   const [mounted, setMounted] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
 
   useEffect(() => {
     const loadFavorites = () => {
@@ -39,6 +41,11 @@ export default function Home({ trendingMovies, recommendedMovies }: HomeProps) {
       setMounted(true);
     };
     loadFavorites();
+
+    const onboardingComplete = localStorage.getItem('onboardingComplete');
+    if (!onboardingComplete) {
+      setShowOnboarding(true);
+    }
   }, []);
 
   const handleToggleFavorite = (movie: Movie) => {
@@ -53,6 +60,13 @@ export default function Home({ trendingMovies, recommendedMovies }: HomeProps) {
     
     setFavorites(newFavorites);
     saveFavorites(newFavorites);
+  };
+
+  const handleOnboardingComplete = (preferences: any) => {
+    console.log('Onboarding preferences:', preferences);
+    localStorage.setItem('onboardingComplete', 'true');
+    localStorage.setItem('userPreferences', JSON.stringify(preferences));
+    setShowOnboarding(false);
   };
 
   const getDisplayedMovies = () => {
@@ -101,6 +115,14 @@ export default function Home({ trendingMovies, recommendedMovies }: HomeProps) {
       <footer className="bg-zinc-900 py-8 text-center text-zinc-500">
         <p>© {new Date().getFullYear()} MovieRec. All rights reserved.</p>
       </footer>
+
+      {showOnboarding && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+          <div className="w-full max-w-4xl max-h-[90vh] overflow-y-auto bg-white rounded-2xl shadow-2xl">
+            <Onboarding onComplete={handleOnboardingComplete} />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
