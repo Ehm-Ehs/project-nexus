@@ -27,4 +27,25 @@ export interface Movie {
     Production: string;
     Website: string;
     Response: string;
+    // Extended fields for rich UI
+    moods?: string[];
+    contentFlags?: string[];
+    streaming?: string[];
+    length?: number;
+    pacing?: string;
+    isHiddenGem?: boolean;
+    genres?: string[];
+    director?: string;
+    country?: string;
+}
+
+export interface UserPreferences {
+    moods: string[];
+    likedMovies: string[];
+    dislikedMovies: string[];
+    languages: string[];
+    countries: string[];
+    contentRestrictions: string[];
+    familiarityLevel: number;
+    excludeFilters: string[];
 }
