@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ThumbsUp, ThumbsDown, Download } from 'lucide-react';
+import { FaThumbsUp, FaThumbsDown, FaDownload } from 'react-icons/fa';
 import { getPopularMovies, getTmdbImageUrl } from '../../../utils/tmdbClient';
 import Image from 'next/image';
 
@@ -73,7 +73,7 @@ export function MovieSelection({
           onClick={() => setShowImport(!showImport)}
           className="flex items-center gap-2 px-4 py-2 text-purple-600 border border-purple-200 rounded-lg hover:bg-purple-50 transition-colors"
         >
-          <Download className="w-4 h-4" />
+          <FaDownload className="w-4 h-4" />
           Import
         </button>
       </div>
@@ -87,11 +87,11 @@ export function MovieSelection({
           <span className="text-neutral-700">Selected: {totalSelected} / 5</span>
           <div className="flex items-center gap-4">
             <span className="flex items-center gap-1 text-green-600">
-              <ThumbsUp className="w-4 h-4" />
+              <FaThumbsUp className="w-4 h-4" />
               {likedMovies.length}
             </span>
             <span className="flex items-center gap-1 text-red-600">
-              <ThumbsDown className="w-4 h-4" />
+              <FaThumbsDown className="w-4 h-4" />
               {dislikedMovies.length}
             </span>
           </div>
@@ -155,7 +155,7 @@ export function MovieSelection({
                             : 'bg-white/90 text-neutral-700 hover:bg-green-500 hover:text-white'
                         }`}
                       >
-                        <ThumbsUp className="w-3 h-3 mx-auto" />
+                        <FaThumbsUp className="w-3 h-3 mx-auto" />
                       </button>
                       <button
                         onClick={() => handleDislike(movieIdStr)}
@@ -165,7 +165,7 @@ export function MovieSelection({
                             : 'bg-white/90 text-neutral-700 hover:bg-red-500 hover:text-white'
                         }`}
                       >
-                        <ThumbsDown className="w-3 h-3 mx-auto" />
+                        <FaThumbsDown className="w-3 h-3 mx-auto" />
                       </button>
                     </div>
                   </div>
@@ -178,9 +178,9 @@ export function MovieSelection({
                     }`}
                   >
                     {isLiked ? (
-                      <ThumbsUp className="w-3 h-3 text-white" />
+                      <FaThumbsUp className="w-3 h-3 text-white" />
                     ) : (
-                      <ThumbsDown className="w-3 h-3 text-white" />
+                      <FaThumbsDown className="w-3 h-3 text-white" />
                     )}
                   </div>
                 )}

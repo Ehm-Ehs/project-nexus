@@ -1,4 +1,3 @@
-import { GetServerSideProps } from 'next';
 import { useState, useEffect } from 'react';
 import Head from 'next/head';
 import { Geist, Geist_Mono } from "next/font/google";
@@ -6,13 +5,10 @@ import Header from '../component/layout/Header';
 import Hero from '../component/layout/Hero';
 import MovieGrid from '../component/common/MovieGrid';
 import { Onboarding } from '../component/page/onboarding';
+import { Lists } from '../component/page/list';
 import { Movie } from '../types';
-import { 
-  fetchTrendingMovies, 
-  fetchRecommendedMovies, 
-  getFavorites, 
-  saveFavorites 
-} from '../utils/movieService';
+import useFirebaseAuth from '../component/hooks/useAuth';
+import { useFavorites } from '../component/hooks/useFavorites';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -24,61 +20,155 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-interface HomeProps {
-  trendingMovies: Movie[];
-  recommendedMovies: Movie[];
-}
-
-export default function Home({ trendingMovies, recommendedMovies }: HomeProps) {
+export default function Home() {
   const [activeTab, setActiveTab] = useState('trending');
-  const [favorites, setFavorites] = useState<Movie[]>([]);
   const [mounted, setMounted] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
-
+  const [recMovies, setRecMovies] = useState<Movie[]>([]);
+  const [trendingMoviesList, setTrendingMoviesList] = useState<Movie[]>([]);
+  const [loading, setLoading] = useState(true);
+  
   useEffect(() => {
-    const loadFavorites = () => {
-      setFavorites(getFavorites());
-      setMounted(true);
-    };
-    loadFavorites();
-
-    const onboardingComplete = localStorage.getItem('onboardingComplete');
-    if (!onboardingComplete) {
-      setShowOnboarding(true);
-    }
+    (async () => {
+      // Wait for auth to initialize
+      // We need to know if there is a logged in user or if we should create an anon one
+      // But useAuth handles initialization internally. 
+      // Let's check if we have a user from useAuth hook, but we can't access it inside this async IIFE easily without adding it to dependency
+      // Actually, we should rely on the `user` object from useFirebaseAuth
+    })();
   }, []);
 
-  const handleToggleFavorite = (movie: Movie) => {
-    const isFavorite = favorites.some(fav => fav.imdbID === movie.imdbID);
-    let newFavorites;
-    
-    if (isFavorite) {
-      newFavorites = favorites.filter(fav => fav.imdbID !== movie.imdbID);
-    } else {
-      newFavorites = [...favorites, movie];
-    }
-    
-    setFavorites(newFavorites);
-    saveFavorites(newFavorites);
-  };
+  // New effect to handle auth state changes and returning users
+  const { user, initializing, ensureAnonymous } = useFirebaseAuth();
+  const { favorites, toggleFavorite } = useFavorites();
 
-  const handleOnboardingComplete = (preferences: any) => {
+  useEffect(() => {
+      if (initializing) return;
+
+      const init = async () => {
+          if (!user) {
+              await ensureAnonymous();
+              return;
+          }
+
+          // If user is logged in (anon or real)
+          setMounted(true);
+
+          // Check if we have local preferences
+          const localPrefs = localStorage.getItem('userPreferences');
+          const onboardingComplete = localStorage.getItem('onboardingComplete');
+
+          if (user.isAnonymous) {
+              // Anonymous user: rely on local storage
+              if (!onboardingComplete) {
+                  setShowOnboarding(true);
+              }
+          } else {
+              // Signed in user: fetch profile from Firestore
+              try {
+                  const { getUserProfile } = await import('../component/lib/movieService');
+                  const profile = await getUserProfile(user.uid);
+
+                  if (profile) {
+                      // Returning user with profile!
+                      console.log("Found existing profile for user", user.uid);
+                      
+                      // Sync to local storage
+                      localStorage.setItem('onboardingComplete', 'true');
+                      localStorage.setItem('userPreferences', JSON.stringify(profile));
+                      
+                      // Sync favorites if they exist in profile
+                      if (profile.favorites) {
+                          localStorage.setItem('movieflix.favorites', JSON.stringify(profile.favorites));
+                          // We might need to trigger a reload of favorites in useFavorites if it doesn't listen to storage
+                          // But useFavorites likely fetches on mount or user change.
+                      }
+
+                      setShowOnboarding(false);
+                      
+                      // Fetch recommendations based on this profile
+                      const { getPersonalizedMovies, getPersonalizedTrending } = await import('../utils/tmdbClient');
+                      const [recData, trendData] = await Promise.all([
+                          getPersonalizedMovies(profile),
+                          getPersonalizedTrending(profile)
+                      ]);
+
+                      if (recData?.results) setRecMovies(recData.results);
+                      if (trendData?.results) setTrendingMoviesList(trendData.results);
+                      
+                      setLoading(false);
+                      return;
+                  } else {
+                      // Signed in but no profile? (Maybe new user via Google who hasn't done onboarding?)
+                      // Or maybe they cleared their data. 
+                      // If no local onboarding complete, show it.
+                      if (!onboardingComplete) {
+                          setShowOnboarding(true);
+                      }
+                  }
+              } catch (e) {
+                  console.error("Error fetching user profile", e);
+              }
+          }
+
+          // Fallback: Load from local if we didn't return early
+          if (!onboardingComplete && !localStorage.getItem('onboardingComplete')) {
+             setShowOnboarding(true);
+          } else if (localPrefs) {
+             // Load recommendations from local prefs
+             try {
+                const prefs = JSON.parse(localPrefs);
+                const { getPersonalizedMovies, getPersonalizedTrending } = await import('../utils/tmdbClient');
+                const [recData, trendData] = await Promise.all([
+                    getPersonalizedMovies(prefs),
+                    getPersonalizedTrending(prefs)
+                ]);
+                if (recData?.results) setRecMovies(recData.results);
+                if (trendData?.results) setTrendingMoviesList(trendData.results);
+             } catch (e) { console.error(e); }
+          }
+          
+          setLoading(false);
+      };
+
+      init();
+  }, [user, initializing, ensureAnonymous]);
+
+  const handleOnboardingComplete = async (preferences: any) => {
     console.log('Onboarding preferences:', preferences);
     localStorage.setItem('onboardingComplete', 'true');
     localStorage.setItem('userPreferences', JSON.stringify(preferences));
     setShowOnboarding(false);
+    
+    // Immediately fetch personalized movies
+    try {
+        const { getPersonalizedMovies, getPersonalizedTrending } = await import('../utils/tmdbClient');
+        const [recData, trendData] = await Promise.all([
+            getPersonalizedMovies(preferences),
+            getPersonalizedTrending(preferences)
+        ]);
+
+        if (recData && recData.results) {
+            setRecMovies(recData.results);
+        }
+        if (trendData && trendData.results) {
+            setTrendingMoviesList(trendData.results);
+        }
+    } catch (e) {
+        console.error("Failed to fetch personalized movies after onboarding", e);
+    }
   };
 
   const getDisplayedMovies = () => {
     switch (activeTab) {
       case 'trending':
-        return trendingMovies;
+        return trendingMoviesList;
       case 'recommended':
-        return recommendedMovies;
+        return recMovies;
       case 'favorites':
         return favorites;
       default:
-        return trendingMovies;
+        return trendingMoviesList;
     }
   };
 
@@ -90,7 +180,7 @@ export default function Home({ trendingMovies, recommendedMovies }: HomeProps) {
   return (
     <div className={`${geistSans.className} ${geistMono.className} min-h-screen bg-black text-white font-sans`}>
       <Head>
-        <title>MovieFlix - Discover Your Next Favorite Movie</title>
+        <title>MovieRec - Discover Your Next Favorite Movie</title>
         <meta name="description" content="Find trending and recommended movies tailored for you." />
         <link rel="icon" href="/favicon.ico" />
       </Head>
@@ -104,12 +194,16 @@ export default function Home({ trendingMovies, recommendedMovies }: HomeProps) {
       <main>
         {activeTab === 'trending' && <Hero />}
         
-        <MovieGrid 
-          movies={getDisplayedMovies()} 
-          activeTab={activeTab}
-          favorites={favorites}
-          onToggleFavorite={handleToggleFavorite}
-        />
+        {activeTab === 'lists' ? (
+            <Lists />
+        ) : (
+            <MovieGrid 
+              movies={getDisplayedMovies()} 
+              activeTab={activeTab}
+              favorites={favorites}
+              onToggleFavorite={toggleFavorite}
+            />
+        )}
       </main>
 
       <footer className="bg-zinc-900 py-8 text-center text-zinc-500">
@@ -126,17 +220,3 @@ export default function Home({ trendingMovies, recommendedMovies }: HomeProps) {
     </div>
   );
 }
-
-export const getServerSideProps: GetServerSideProps = async () => {
-  const [trendingMovies, recommendedMovies] = await Promise.all([
-    fetchTrendingMovies(),
-    fetchRecommendedMovies()
-  ]);
-
-  return {
-    props: {
-      trendingMovies,
-      recommendedMovies,
-    },
-  };
-};
