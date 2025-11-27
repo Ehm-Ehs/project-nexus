@@ -138,6 +138,38 @@ const Header: React.FC<HeaderProps> = ({ activeTab, setActiveTab, favoritesCount
                 </span>
               )}
             </button>
+
+            <button
+              onClick={() => setActiveTab('lists')}
+              className={`flex items-center space-x-2 rounded-lg px-3 py-2 text-sm transition-all md:px-4 md:py-2 ${
+                activeTab === 'lists'
+                  ? 'bg-[var(--primary-color)] text-white'
+                  : 'text-[var(--text-secondary)] hover:bg-gray-800 hover:text-white'
+              }`}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="text-xl"
+                aria-hidden="true"
+              >
+                <path d="M8 6h13" />
+                <path d="M8 12h13" />
+                <path d="M8 18h13" />
+                <path d="M3 6h.01" />
+                <path d="M3 12h.01" />
+                <path d="M3 18h.01" />
+              </svg>
+              <span className="hidden md:inline">Lists</span>
+              <span className="md:hidden">Lists</span>
+            </button>
           </nav>
         </div>
       </div>

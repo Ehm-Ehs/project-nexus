@@ -49,3 +49,15 @@ export interface UserPreferences {
     familiarityLevel: number;
     excludeFilters: string[];
 }
+
+export interface MovieList {
+    id: string;
+    name: string;
+    description: string;
+    isPublic: boolean;
+    movieIds: string[];
+    createdAt: string;
+    updatedAt: string;
+    collaborators?: number;
+    movies?: Movie[]; // Optional populated movies
+}

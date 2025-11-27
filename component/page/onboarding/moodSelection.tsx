@@ -1,4 +1,4 @@
-import { Smile, Heart, Moon, Zap, Brain, Coffee, Sparkles, TreePine } from 'lucide-react';
+import { FaSmile, FaHeart, FaMoon, FaBolt, FaBrain, FaCoffee, FaMagic, FaTree } from 'react-icons/fa';
 
 type MoodSelectionProps = {
   selectedMoods: string[];
@@ -6,14 +6,14 @@ type MoodSelectionProps = {
 };
 
 const moods = [
-  { id: 'happy', label: 'Happy & Uplifting', icon: Smile, color: 'bg-yellow-100 border-yellow-300 text-yellow-700' },
-  { id: 'cozy', label: 'Cozy & Comforting', icon: Coffee, color: 'bg-orange-100 border-orange-300 text-orange-700' },
-  { id: 'dark', label: 'Dark & Mysterious', icon: Moon, color: 'bg-indigo-100 border-indigo-300 text-indigo-700' },
-  { id: 'intense', label: 'Intense & Thrilling', icon: Zap, color: 'bg-red-100 border-red-300 text-red-700' },
-  { id: 'heartwarming', label: 'Heartwarming', icon: Heart, color: 'bg-pink-100 border-pink-300 text-pink-700' },
-  { id: 'mind-bending', label: 'Mind-Bending', icon: Brain, color: 'bg-purple-100 border-purple-300 text-purple-700' },
-  { id: 'whimsical', label: 'Whimsical & Magical', icon: Sparkles, color: 'bg-cyan-100 border-cyan-300 text-cyan-700' },
-  { id: 'peaceful', label: 'Peaceful & Calm', icon: TreePine, color: 'bg-green-100 border-green-300 text-green-700' },
+  { id: 'happy', label: 'Happy & Uplifting', icon: FaSmile, color: 'bg-yellow-100 border-yellow-300 text-yellow-700' },
+  { id: 'cozy', label: 'Cozy & Comforting', icon: FaCoffee, color: 'bg-orange-100 border-orange-300 text-orange-700' },
+  { id: 'dark', label: 'Dark & Mysterious', icon: FaMoon, color: 'bg-indigo-100 border-indigo-300 text-indigo-700' },
+  { id: 'intense', label: 'Intense & Thrilling', icon: FaBolt, color: 'bg-red-100 border-red-300 text-red-700' },
+  { id: 'heartwarming', label: 'Heartwarming', icon: FaHeart, color: 'bg-pink-100 border-pink-300 text-pink-700' },
+  { id: 'mind-bending', label: 'Mind-Bending', icon: FaBrain, color: 'bg-purple-100 border-purple-300 text-purple-700' },
+  { id: 'whimsical', label: 'Whimsical & Magical', icon: FaMagic, color: 'bg-cyan-100 border-cyan-300 text-cyan-700' },
+  { id: 'peaceful', label: 'Peaceful & Calm', icon: FaTree, color: 'bg-green-100 border-green-300 text-green-700' },
 ];
 
 export function MoodSelection({ selectedMoods, onMoodsChange }: MoodSelectionProps) {

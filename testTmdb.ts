@@ -22,18 +22,18 @@ async function testConnection() {
         console.log('\n1. Fetching Popular Movies...');
         const popularMovies = await getPopularMovies();
         console.log(`   Success! Found ${popularMovies.results.length} movies.`);
-        console.log(`   Top movie: ${popularMovies.results[0].title}`);
+        console.log(`   Top movie: ${popularMovies.results[0].Title}`);
 
         // 2. Search Movies (Batman)
         console.log('\n2. Searching for "Batman"...');
         const searchResults = await searchMovies('Batman');
         console.log(`   Success! Found ${searchResults.results.length} results.`);
-        console.log(`   First result: ${searchResults.results[0].title}`);
+        console.log(`   First result: ${searchResults.results[0].Title}`);
 
         // 3. Movie Details (ID 11 - Star Wars)
         console.log('\n3. Fetching Details for Movie ID 11...');
         const movieDetails = await getMovieDetails('11');
-        console.log(`   Success! Title: ${movieDetails.title}`);
+        console.log(`   Success! Title: ${movieDetails.Title}`);
 
         // 4. Popular TV Shows
         console.log('\n4. Fetching Popular TV Shows...');
@@ -45,7 +45,7 @@ async function testConnection() {
         console.log('\n5. Fetching Trending Movies (Week)...');
         const trending = await getTrendingMovies('week');
         console.log(`   Success! Found ${trending.results.length} trending items.`);
-        console.log(`   Top trending: ${trending.results[0].title}`);
+        console.log(`   Top trending: ${trending.results[0].Title}`);
 
         // 6. Image URL Helper
         console.log('\n6. Testing Image URL Helper...');
