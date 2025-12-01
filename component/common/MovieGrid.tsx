@@ -1,5 +1,6 @@
 import React from 'react';
 import MovieCard from './MovieCard';
+import MovieCardSkeleton from './MovieCardSkeleton';
 import { Movie } from '../../types';
 
 interface MovieGridProps {
@@ -7,14 +8,31 @@ interface MovieGridProps {
   activeTab: string;
   favorites: Movie[];
   onToggleFavorite: (movie: Movie) => void;
+  loading?: boolean;
 }
 
-const MovieGrid: React.FC<MovieGridProps> = ({ movies, activeTab, favorites, onToggleFavorite }) => {
+const MovieGrid: React.FC<MovieGridProps> = ({ movies, activeTab, favorites, onToggleFavorite, loading = false }) => {
   const getTitle = () => {
     if (activeTab === 'trending') return 'Trending Now';
     if (activeTab === 'recommended') return 'Recommended For You';
     return 'Your Favorites';
   };
+
+  if (loading) {
+    return (
+      <div data-name="movie-grid" className="container mx-auto px-4 py-8">
+        <div className="mb-8 flex items-center justify-between">
+          <h2 className="text-3xl font-bold text-white">{getTitle()}</h2>
+          <div className="h-6 w-24 bg-white/10 rounded animate-pulse"></div>
+        </div>
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {Array.from({ length: 8 }).map((_, index) => (
+            <MovieCardSkeleton key={index} />
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div data-name="movie-grid" className="container mx-auto px-4 py-8">
