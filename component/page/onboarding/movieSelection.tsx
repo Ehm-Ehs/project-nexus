@@ -11,9 +11,9 @@ type MovieSelectionProps = {
 };
 
 type TmdbMovie = {
-  id: number;
-  title: string;
-  poster_path: string;
+  imdbID: string;
+  Title: string;
+  Poster: string;
 };
 
 export function MovieSelection({
@@ -126,18 +126,18 @@ export function MovieSelection({
 
       <div className="grid grid-cols-3 md:grid-cols-5 gap-4">
         {movies.map((movie) => {
-          const movieIdStr = movie.id.toString();
+          const movieIdStr = movie.imdbID;
           const isLiked = likedMovies.includes(movieIdStr);
           const isDisliked = dislikedMovies.includes(movieIdStr);
-          const posterUrl = getTmdbImageUrl(movie.poster_path, 'w300');
+          const posterUrl = movie.Poster;
 
           return (
-            <div key={movie.id} className="group relative">
+            <div key={movie.imdbID} className="group relative">
               <div className="relative aspect-[2/3] rounded-lg overflow-hidden bg-neutral-200">
                 {posterUrl && (
                   <Image
                     src={posterUrl}
-                    alt={movie.title}
+                    alt={movie.Title}
                     fill
                     className="object-cover"
                   />
@@ -145,7 +145,7 @@ export function MovieSelection({
                 
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
                   <div className="absolute bottom-0 left-0 right-0 p-2">
-                    <p className="text-white text-xs text-center mb-2 line-clamp-2">{movie.title}</p>
+                    <p className="text-white text-xs text-center mb-2 line-clamp-2">{movie.Title}</p>
                     <div className="flex gap-1">
                       <button
                         onClick={() => handleLike(movieIdStr)}

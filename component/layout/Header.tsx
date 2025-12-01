@@ -1,4 +1,6 @@
 import React from 'react';
+import useFirebaseAuth from '../hooks/useAuth';
+import toast from 'react-hot-toast';
 
 interface HeaderProps {
   activeTab: string;
@@ -7,6 +9,7 @@ interface HeaderProps {
 }
 
 const Header: React.FC<HeaderProps> = ({ activeTab, setActiveTab, favoritesCount }) => {
+  const { signOutUser } = useFirebaseAuth();
   return (
     <div className="sticky top-0 z-50 bg-black shadow-lg">
       <div className="container mx-auto px-4 py-4">
@@ -169,6 +172,67 @@ const Header: React.FC<HeaderProps> = ({ activeTab, setActiveTab, favoritesCount
               </svg>
               <span className="hidden md:inline">Lists</span>
               <span className="md:hidden">Lists</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab('profile')}
+              className={`flex items-center space-x-2 rounded-lg px-3 py-2 text-sm transition-all md:px-4 md:py-2 ${
+                activeTab === 'profile'
+                  ? 'bg-[var(--primary-color)] text-white'
+                  : 'text-[var(--text-secondary)] hover:bg-gray-800 hover:text-white'
+              }`}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="text-xl"
+                aria-hidden="true"
+              >
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                <circle cx="12" cy="7" r="4" />
+              </svg>
+              <span className="hidden md:inline">Profile</span>
+              <span className="md:hidden">Profile</span>
+            </button>
+
+            <button
+              onClick={async () => {
+                try {
+                  await signOutUser();
+                  toast.success('Signed out successfully');
+                  // Optional: Redirect or reset state if needed, but the auth listener in index.tsx should handle it
+                  window.location.reload(); // Force reload to clear state cleanly for now
+                } catch (error) {
+                  console.error("Sign out failed", error);
+                  toast.error('Failed to sign out');
+                }
+              }}
+              className="flex items-center space-x-2 rounded-lg px-3 py-2 text-sm text-red-500 hover:bg-red-500/10 transition-all md:px-4 md:py-2"
+              title="Sign Out"
+            >
+              <svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                width="20" 
+                height="20" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="2" 
+                strokeLinecap="round" 
+                strokeLinejoin="round"
+              >
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                <polyline points="16 17 21 12 16 7" />
+                <line x1="21" y1="12" x2="9" y2="12" />
+              </svg>
+              <span className="hidden md:inline">Sign Out</span>
             </button>
           </nav>
         </div>
