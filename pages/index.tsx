@@ -223,6 +223,7 @@ export default function Home() {
               activeTab={activeTab}
               favorites={favorites}
               onToggleFavorite={toggleFavorite}
+              loading={loading}
             />
         )}
       </main>
