@@ -62,7 +62,12 @@ export async function savePreferencesToFirestore(preferences: UserPreferences): 
     if (user && db) {
         const ref = doc(db, "users", user.uid, "preferences", "profile");
         try {
-            await setDoc(ref, { ...preferences, updatedAt: new Date().toISOString() }, { merge: true });
+            await setDoc(ref, {
+                ...preferences,
+                email: user.email,
+                displayName: user.displayName,
+                updatedAt: new Date().toISOString()
+            }, { merge: true });
         } catch (err) {
             console.error("Failed to save preferences to Firestore", err);
         }
